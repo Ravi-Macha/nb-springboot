@@ -25,21 +25,33 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Alessandro Falappa
  */
-@ServiceProvider(service = MIMEResolver.class, position = 10)
+//@MIMEResolver.Registration(
+//        displayName = "Config Props",
+//        resource = "cfgprops-resolver.xml",
+//        position = 10
+//)
+@ServiceProvider(service = MIMEResolver.class, position = 110)
 public class AppPropsResolver extends MIMEResolver {
 
+    public static final String MIME_JAVAPROPS = "text/x-properties";
     public static final String MIME_APPPROPS = "text/application+properties";
     private static final Pattern BOOT_APP_PROPS = Pattern.compile("application(-\\w+)?\\.properties");
 
     public AppPropsResolver() {
-        super(new String[]{MIME_APPPROPS});
+        super(new String[]{MIME_JAVAPROPS, MIME_APPPROPS});
     }
 
     @Override
     public String findMIMEType(FileObject fo) {
+        if (!fo.canRead() || fo.isFolder()) {
+            return null;
+        }
         System.out.println("Finding mime type for " + fo.getNameExt());
         if (fo.getExt().equals("props") || BOOT_APP_PROPS.matcher(fo.getNameExt()).matches()) {
             return MIME_APPPROPS;
+        }
+        if (fo.getExt().equals("properties")) {
+            return MIME_JAVAPROPS;
         }
         return null;
     }
